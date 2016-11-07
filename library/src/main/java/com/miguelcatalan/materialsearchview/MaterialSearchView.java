@@ -565,15 +565,45 @@ public class MaterialSearchView extends FrameLayout implements Filter.FilterList
             return;
         }
 
-        mSearchSrcTextView.setText(null);
-        dismissSuggestions();
-        clearFocus();
+        AnimationUtil.AnimationListener animationListener = new AnimationUtil.AnimationListener(){
 
-        mSearchLayout.setVisibility(GONE);
-        if (mSearchViewListener != null) {
-            mSearchViewListener.onSearchViewClosed();
+            @Override
+            public boolean onAnimationStart(View view) {
+                return false;
+            }
+
+            @Override
+            public boolean onAnimationEnd(View view) {
+                mSearchSrcTextView.setText(null);
+                dismissSuggestions();
+                clearFocus();
+
+                mSearchLayout.setVisibility(GONE);
+                if (mSearchViewListener != null) {
+                    mSearchViewListener.onSearchViewClosed();
+                }
+                mIsSearchOpen = false;
+
+                return false;
+            }
+
+            @Override
+            public boolean onAnimationCancel(View view) {
+                return false;
+            }
+        };
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            mSearchLayout.setVisibility(View.VISIBLE);
+            AnimationUtil.hide(mSearchTopBar, animationListener);
+
+        } else {
+            mSearchLayout.setVisibility(VISIBLE);
+            AnimationUtil.fadeOutView(mSearchLayout, AnimationUtil.ANIMATION_DURATION_MEDIUM, animationListener);
         }
-        mIsSearchOpen = false;
+
+
 
     }
 
